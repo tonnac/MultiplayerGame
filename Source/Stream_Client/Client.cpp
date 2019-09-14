@@ -22,16 +22,14 @@ void Client::Initialize(const tString& IPAddr, uint16_t portNum, SocketAddressFa
 void Client::Run()
 {
 	char Message[BUFFER_SIZE] = {};
+
+
+	TestClass e(32, 13, "Meoeeew");
+	SendTestClass(mTCPSocket, &e);
+
 	while (1)
 	{
-		fgets(Message, BUFFER_SIZE, stdin);
-		if (_stricmp(Message, "q\n") == 0) break;
-		mTCPSocket->Send(Message, strlen(Message));
-		int receiveSize = mTCPSocket->Receive(Message, BUFFER_SIZE);
-		if (receiveSize > 0)
-		{
-			printf("Message from Server: %s", Message);
-		}
+
 	}
 }
 

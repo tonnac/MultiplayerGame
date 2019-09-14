@@ -33,6 +33,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Stream_Server", "Stream_Ser
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Stream_Client", "Stream_Client\Stream_Client.vcxproj", "{C5F6ED9D-402C-4908-9E02-4B54D948ACA2}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Constexpr", "Constexpr\Constexpr.vcxproj", "{F3707A57-C0C9-4F64-A55F-724C3B87F411}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -113,6 +115,14 @@ Global
 		{C5F6ED9D-402C-4908-9E02-4B54D948ACA2}.Release|x64.Build.0 = Release|x64
 		{C5F6ED9D-402C-4908-9E02-4B54D948ACA2}.Release|x86.ActiveCfg = Release|Win32
 		{C5F6ED9D-402C-4908-9E02-4B54D948ACA2}.Release|x86.Build.0 = Release|Win32
+		{F3707A57-C0C9-4F64-A55F-724C3B87F411}.Debug|x64.ActiveCfg = Debug|x64
+		{F3707A57-C0C9-4F64-A55F-724C3B87F411}.Debug|x64.Build.0 = Debug|x64
+		{F3707A57-C0C9-4F64-A55F-724C3B87F411}.Debug|x86.ActiveCfg = Debug|Win32
+		{F3707A57-C0C9-4F64-A55F-724C3B87F411}.Debug|x86.Build.0 = Debug|Win32
+		{F3707A57-C0C9-4F64-A55F-724C3B87F411}.Release|x64.ActiveCfg = Release|x64
+		{F3707A57-C0C9-4F64-A55F-724C3B87F411}.Release|x64.Build.0 = Release|x64
+		{F3707A57-C0C9-4F64-A55F-724C3B87F411}.Release|x86.ActiveCfg = Release|Win32
+		{F3707A57-C0C9-4F64-A55F-724C3B87F411}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -127,6 +137,7 @@ Global
 		{EFC5669F-211E-4673-9831-E7FC39CE5FE1} = {E036D1E8-DA24-4DA1-A324-F4D3CBB72B7C}
 		{2AE2748E-3AE1-434E-8848-66337785165B} = {E036D1E8-DA24-4DA1-A324-F4D3CBB72B7C}
 		{C5F6ED9D-402C-4908-9E02-4B54D948ACA2} = {E036D1E8-DA24-4DA1-A324-F4D3CBB72B7C}
+		{F3707A57-C0C9-4F64-A55F-724C3B87F411} = {DA50EA06-4D19-4524-8879-ED5585620186}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7F34EC23-1839-41D6-A411-2FBF060B3EE8}

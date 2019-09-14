@@ -28,17 +28,10 @@ void Server::Run()
 			}
 			else
 			{
-				char segment[BUFFER_SIZE];
-				int dataReceived = socket->Receive(segment, BUFFER_SIZE);
-				if (dataReceived > 0)
-				{
-					socket->Send(segment, dataReceived);
-				}
-				else
-				{
-					printf("user exit\n");
-					UserExit(&readBlockSockets, socket);
-				}
+				auto e = std::make_shared<TestClass>();
+				ReceiveTestClass(socket, e.get());
+
+				int a = 5;
 			}
 		}
 	}

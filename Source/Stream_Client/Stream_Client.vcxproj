@@ -79,7 +79,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)../inc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)../inc;$(SolutionDir)../inc/MemoryStream</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

@@ -30,12 +30,30 @@
     <ClInclude Include="MemoryPCH.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="ByteSwap.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="OutputMemoryBitStream.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="InputMemoryBitStream.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="OutputMemoryStream.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="InputMemoryStream.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="TestClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="OutputMemoryBitStream.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="InputMemoryBitStream.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

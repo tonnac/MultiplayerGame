@@ -80,6 +80,8 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)../inc</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>MemoryPCH.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -132,15 +134,25 @@ copy /Y "$(ProjectDir)/*.h" "$(SolutionDir)../inc/$(ProjectName)"</Command>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ByteSwap.h" />
+    <ClInclude Include="InputMemoryBitStream.h" />
     <ClInclude Include="InputMemoryStream.h" />
     <ClInclude Include="MemoryPCH.h" />
     <ClInclude Include="MemoryShared.h" />
+    <ClInclude Include="OutputMemoryBitStream.h" />
     <ClInclude Include="OutputMemoryStream.h" />
     <ClInclude Include="TestClass.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InputMemoryStream.cpp" />
-    <ClCompile Include="OutputMemoryStream.cpp" />
+    <ClCompile Include="InputMemoryBitStream.cpp" />
+    <ClCompile Include="InputMemoryStream.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="OutputMemoryBitStream.cpp" />
+    <ClCompile Include="OutputMemoryStream.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="TestClass.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,4 +1,4 @@
-#include "OutputMemoryStream.h"
+#include "MemoryPCH.h"
 
 void OutputMemoryStream::Write(const void* inData, size_t inByteCount)
 {
