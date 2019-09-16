@@ -28,10 +28,21 @@ void Server::Run()
 			}
 			else
 			{
-				auto e = std::make_shared<TestClass>();
-				ReceiveTestClass(socket, e.get());
+				char buffer[4096] = {};
 
-				int a = 5;
+				int receiveData = recv(socket->getSocket(), buffer, _countof(buffer), 0);
+
+				if (receiveData > 0)
+				{
+					DirectX::XMFLOAT3 scale;
+					DirectX::XMFLOAT4 quat;
+					DirectX::XMFLOAT3 trans;
+					InputMemoryBitStream iMS(buffer, receiveData);
+
+					iMS.Read(scale, quat, trans);
+
+					int b = 123;
+				}
 			}
 		}
 	}

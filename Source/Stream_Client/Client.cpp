@@ -24,8 +24,28 @@ void Client::Run()
 	char Message[BUFFER_SIZE] = {};
 
 
-	TestClass e(32, 13, "Meoeeew");
-	SendTestClass(mTCPSocket, &e);
+	OutputMemoryBitStream bitStream;
+
+	DirectX::XMFLOAT3 scale;
+	DirectX::XMFLOAT4 quat;
+	DirectX::XMFLOAT3 trans;
+
+	scale.x = scale.y = scale.z = 1.f;
+
+	quat.x = FloatRand(1);
+	quat.y = FloatRand(3);
+	quat.z = FloatRand(2);
+	quat.w = FloatRand(3);
+
+	DirectX::XMStoreFloat4(&quat, DirectX::XMVector4Normalize(DirectX::XMLoadFloat4(&quat)));
+
+	trans.x = FloatRand(2030);
+	trans.y = FloatRand(7030);
+	trans.z = FloatRand(4030);
+
+	bitStream.Write(scale, quat, trans);
+
+	send(mTCPSocket->getSocket(), bitStream.GetBufferPtr(), bitStream.GetByteLength(), 0);
 
 	while (1)
 	{

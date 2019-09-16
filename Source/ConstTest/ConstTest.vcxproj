@@ -20,8 +20,8 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{EFC5669F-211E-4673-9831-E7FC39CE5FE1}</ProjectGuid>
-    <RootNamespace>MemoryStream</RootNamespace>
+    <ProjectGuid>{552F8518-38C3-43F7-8377-22A241A05E4A}</ProjectGuid>
+    <RootNamespace>ConstTest</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -39,10 +39,10 @@
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -79,18 +79,10 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)../inc</AdditionalIncludeDirectories>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>MemoryPCH.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>$(SolutionDir)../lib/</AdditionalLibraryDirectories>
     </Link>
-    <PostBuildEvent>
-      <Command>copy /Y "$(TargetDir)$(ProjectName).lib" "$(SolutionDir)../lib/"
-copy /Y "$(ProjectDir)/*.h" "$(SolutionDir)../inc/$(ProjectName)"</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -134,27 +126,7 @@ copy /Y "$(ProjectDir)/*.h" "$(SolutionDir)../inc/$(ProjectName)"</Command>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="ByteSwap.h" />
-    <ClInclude Include="InputMemoryBitStream.h" />
-    <ClInclude Include="InputMemoryStream.h" />
-    <ClInclude Include="MemberVariable.h" />
-    <ClInclude Include="MemoryPCH.h" />
-    <ClInclude Include="MemoryShared.h" />
-    <ClInclude Include="MemoryStream.h" />
-    <ClInclude Include="OutputMemoryBitStream.h" />
-    <ClInclude Include="OutputMemoryStream.h" />
-    <ClInclude Include="TestClass.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="InputMemoryBitStream.cpp" />
-    <ClCompile Include="InputMemoryStream.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="OutputMemoryBitStream.cpp" />
-    <ClCompile Include="OutputMemoryStream.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="TestClass.cpp" />
+    <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

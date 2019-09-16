@@ -2,10 +2,14 @@
 
 int main()
 {
-	int64_t e = 0x12345678abcdabcd;
-	auto d = ByteSwap(e);
+	float epsilon = 1.192092896e-07F;
+	float qp = 1.e-3F;
 
-	printf("0x%llx\n0x%llx", e, d);
+	uint16_t e = 42054;
+	int d = ByteSwap(e);
+
+	printf("%g, %f", epsilon, qp);
+
 
 	TestByteSwap();
 	return 0;

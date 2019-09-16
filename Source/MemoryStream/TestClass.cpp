@@ -4,14 +4,14 @@ void TestClass::Write(OutputMemoryStream& inStream) const
 {
 	inStream.Write(mHealth);
 	inStream.Write(mMeowCount);
-	inStream.Write(mName, 128);
+	inStream.Write(mName);
 }
 
 void TestClass::Read(InputMemoryStream& inStream)
 {
 	inStream.Read(mHealth);
 	inStream.Read(mMeowCount);
-	inStream.Read(mName, 128);
+	inStream.Read(mName);
 }
 
 void SendTestClass(TCPSocketPtr inSocket, const TestClass* inTest)

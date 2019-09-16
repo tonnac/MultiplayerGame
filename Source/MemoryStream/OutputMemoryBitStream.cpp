@@ -51,11 +51,38 @@ void OutputMemoryBitStream::Write(const DirectX::XMFLOAT3& inVector)
 
 void OutputMemoryBitStream::Write(const DirectX::XMFLOAT4& inQuat)
 {
-	float precision = (2.f / gPrecision);
-	Write(ConvertToFixed(inQuat.x, -1.0f, precision), gPrecisionBit);
-	Write(ConvertToFixed(inQuat.x, -1.0f, precision), gPrecisionBit);
-	Write(ConvertToFixed(inQuat.x, -1.0f, precision), gPrecisionBit);
+	Write((uint16_t)ConvertToFixed(inQuat.x, -1.0f, gPrecision), gPrecisionBit);
+	Write((uint16_t)ConvertToFixed(inQuat.y, -1.0f, gPrecision), gPrecisionBit);
+	Write((uint16_t)ConvertToFixed(inQuat.z, -1.0f, gPrecision), gPrecisionBit);
 	Write(inQuat.w < 0);
+}
+
+void OutputMemoryBitStream::Write(const DirectX::XMFLOAT3& inScale, const DirectX::XMFLOAT4& inQuat, const DirectX::XMFLOAT3& inTrans)
+{
+	if (CompareFloat(inScale.x, 1.0f) && CompareFloat(inScale.y, 1.0f) && CompareFloat(inScale.z, 1.0f))
+	{
+		Write(true);
+	}
+	else
+	{
+		constexpr float Precision = 5.f / gPrecisionNum;
+		Write(false);
+		if (CompareFloat(inScale.x, inScale.y) && CompareFloat(inScale.x, inScale.z))
+		{
+			Write(true);
+			Write(ConvertToFixed(inScale.x, -1.f, Precision), gPrecisionBit);
+		}
+		else
+		{
+			Write(false);
+			Write(ConvertToFixed(inScale.x, -1.f, Precision), gPrecisionBit);
+			Write(ConvertToFixed(inScale.y, -1.f, Precision), gPrecisionBit);
+			Write(ConvertToFixed(inScale.z, -1.f, Precision), gPrecisionBit);
+		}
+	}
+
+	Write(inQuat);
+	Write(inTrans);
 }
 
 void OutputMemoryBitStream::ReallocBuffer(uint32_t inNewBitCapacity)

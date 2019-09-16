@@ -1,6 +1,5 @@
 #pragma once
 
-
 class TestClass
 {
 public:
@@ -8,18 +7,38 @@ public:
 	{}
 
 	TestClass(int32_t health, int32_t count, const char* name)
-		: mHealth(health), mMeowCount(count)
-	{
-		memcpy(mName, name, _countof(mName));
-	}
+		: mName(name), mHealth(health), mMeowCount(count)
+	{}
 
 	void Write(OutputMemoryStream& inStream) const;
 	void Read(InputMemoryStream& inStream);
 
+	static const DataType* GetDataType()
+	{
+		static DataType* sDatatype = nullptr;
+		if (sDatatype == nullptr)
+		{
+			InitDataType(&sDatatype);
+		}
+		return sDatatype;
+	}
+private:
+	static void InitDataType(DataType** inDataType)
+	{
+		*inDataType = new DataType
+		(
+			{
+				MemberVariable("mHealth", EPrimitiveType::EPT_Int, OffsetOf(TestClass, mHealth)),
+				MemberVariable("mMeowCount", EPrimitiveType::EPT_Int, OffsetOf(TestClass, mMeowCount)),
+				MemberVariable("mName", EPrimitiveType::EPT_String, OffsetOf(TestClass, mName))
+			}
+		);
+	}
+
 private:
 	int32_t mHealth;
 	int32_t mMeowCount;
-	char mName[128] = {};
+	string mName;
 };
 
 void SendTestClass(TCPSocketPtr inSocket, const TestClass* inTest);

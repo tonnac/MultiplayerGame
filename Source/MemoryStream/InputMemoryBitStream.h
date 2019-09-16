@@ -40,6 +40,13 @@ public:
 		static_assert(std::is_arithmetic<T>::value || std::is_enum<T>::value,
 			"Generic Read only supports primitive data types");
 		ReadBits(&inData, inBitCount);
+
+#if (STREAM_ENDIANNESS != PLATFORM_ENDIANNESS)
+		if ((inBitCount >> 3) > 1)
+		{
+			inData = ByteSwap(inData);
+		}
+#endif
 	}
 	template<>
 	void Read<bool>(bool& inData, uint32_t inBitCount)
@@ -61,6 +68,8 @@ public:
 
 	void Read(DirectX::XMFLOAT4& inQuat);
 	void Read(DirectX::XMFLOAT3& InVector);
+
+	void Read(DirectX::XMFLOAT3& inScale, DirectX::XMFLOAT4& inQuat, DirectX::XMFLOAT3& inTrans);
 
 	void ResetToCapacity(uint32_t inByteCapacity) { mBitCapacity = inByteCapacity << 3; mBitHead = 0; }
 
