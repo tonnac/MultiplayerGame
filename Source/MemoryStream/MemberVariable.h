@@ -1,4 +1,5 @@
 #pragma once
+#include <functional>
 
 #define OffsetOf(c, mv) ((size_t) & static_cast<c*>(nullptr)->mv)
 
@@ -8,6 +9,9 @@ enum class EPrimitiveType : uint8_t
 	EPT_String,
 	EPT_Float
 };
+
+class GameObject;
+using GameObjectCreationFunc = std::function<GameObject* ()>;
 
 class MemberVariable
 {
@@ -28,13 +32,17 @@ private:
 class DataType
 {
 public:
-	DataType(std::initializer_list<MemberVariable> inMVs) :
-		mMemberVariable(inMVs)
+	DataType(std::initializer_list<MemberVariable> inMVs, GameObjectCreationFunc inFunc) :
+		mMemberVariable(inMVs), mCreateFunc(inFunc)
 	{}
 
 	const vector<MemberVariable>& GetMemberVariable() const
 	{ return mMemberVariable; }
 	
+	const GameObjectCreationFunc GetCreationFunc() const
+	{ return mCreateFunc; }
+
 private:
 	vector<MemberVariable> mMemberVariable;
+	GameObjectCreationFunc mCreateFunc;
 };

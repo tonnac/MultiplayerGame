@@ -31,7 +31,8 @@ private:
 				MemberVariable("mHealth", EPrimitiveType::EPT_Int, OffsetOf(TestClass, mHealth)),
 				MemberVariable("mMeowCount", EPrimitiveType::EPT_Int, OffsetOf(TestClass, mMeowCount)),
 				MemberVariable("mName", EPrimitiveType::EPT_String, OffsetOf(TestClass, mName))
-			}
+			},
+			nullptr
 		);
 	}
 
