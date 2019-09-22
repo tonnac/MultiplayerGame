@@ -1,0 +1,168 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일\Socket">
+      <UniqueIdentifier>{cd64fd65-4f03-4aab-9f12-d9670ed1343b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Stream">
+      <UniqueIdentifier>{cc6b345a-9938-4024-b258-0d4f9d23bdda}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Replication">
+      <UniqueIdentifier>{84e65367-5bdd-4f18-b41c-1c1afd3c7072}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Socket">
+      <UniqueIdentifier>{076d297f-ffa2-440e-89a6-eb069df88d59}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Stream">
+      <UniqueIdentifier>{01e03c9e-8fa3-4b1d-a802-31f1c4b1b75a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Replication">
+      <UniqueIdentifier>{f0cf26ca-9943-4f95-bf23-eb55e88bd76b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Engine">
+      <UniqueIdentifier>{6a190983-fb8d-498a-86db-2b6275c4fe46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Engine">
+      <UniqueIdentifier>{55fe939e-78ee-41e8-b965-db02eafff83e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="RobocatPCH.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="RobocatShared.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SocketAddress.h">
+      <Filter>헤더 파일\Socket</Filter>
+    </ClInclude>
+    <ClInclude Include="SocketAddressFactory.h">
+      <Filter>헤더 파일\Socket</Filter>
+    </ClInclude>
+    <ClInclude Include="SocketException.h">
+      <Filter>헤더 파일\Socket</Filter>
+    </ClInclude>
+    <ClInclude Include="SocketUtil.h">
+      <Filter>헤더 파일\Socket</Filter>
+    </ClInclude>
+    <ClInclude Include="OutputMemoryStream.h">
+      <Filter>헤더 파일\Stream</Filter>
+    </ClInclude>
+    <ClInclude Include="OutputMemoryBitStream.h">
+      <Filter>헤더 파일\Stream</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectCreationRegistry.h">
+      <Filter>헤더 파일\Replication</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoryStream.h">
+      <Filter>헤더 파일\Stream</Filter>
+    </ClInclude>
+    <ClInclude Include="MemberVariable.h">
+      <Filter>헤더 파일\Replication</Filter>
+    </ClInclude>
+    <ClInclude Include="LinkingContext.h">
+      <Filter>헤더 파일\Replication</Filter>
+    </ClInclude>
+    <ClInclude Include="ByteSwap.h">
+      <Filter>헤더 파일\Stream</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObj.h">
+      <Filter>헤더 파일\Replication</Filter>
+    </ClInclude>
+    <ClInclude Include="InputMemoryBitStream.h">
+      <Filter>헤더 파일\Stream</Filter>
+    </ClInclude>
+    <ClInclude Include="InputMemoryStream.h">
+      <Filter>헤더 파일\Stream</Filter>
+    </ClInclude>
+    <ClInclude Include="ReplicationHeader.h">
+      <Filter>헤더 파일\Replication</Filter>
+    </ClInclude>
+    <ClInclude Include="ReplicationManager.h">
+      <Filter>헤더 파일\Replication</Filter>
+    </ClInclude>
+    <ClInclude Include="RPCManager.h">
+      <Filter>헤더 파일\Replication</Filter>
+    </ClInclude>
+    <ClInclude Include="TCPSocket.h">
+      <Filter>헤더 파일\Socket</Filter>
+    </ClInclude>
+    <ClInclude Include="UDPSocket.h">
+      <Filter>헤더 파일\Socket</Filter>
+    </ClInclude>
+    <ClInclude Include="StringUtils.h">
+      <Filter>헤더 파일\Socket</Filter>
+    </ClInclude>
+    <ClInclude Include="Timing.h">
+      <Filter>헤더 파일\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine.h">
+      <Filter>헤더 파일\Engine</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InputMemoryBitStream.cpp">
+      <Filter>소스 파일\Stream</Filter>
+    </ClCompile>
+    <ClCompile Include="InputMemoryStream.cpp">
+      <Filter>소스 파일\Stream</Filter>
+    </ClCompile>
+    <ClCompile Include="OutputMemoryStream.cpp">
+      <Filter>소스 파일\Stream</Filter>
+    </ClCompile>
+    <ClCompile Include="OutputMemoryBitStream.cpp">
+      <Filter>소스 파일\Stream</Filter>
+    </ClCompile>
+    <ClCompile Include="ReplicationHeader.cpp">
+      <Filter>소스 파일\Replication</Filter>
+    </ClCompile>
+    <ClCompile Include="ReplicationManager.cpp">
+      <Filter>소스 파일\Replication</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectCreationRegistry.cpp">
+      <Filter>소스 파일\Replication</Filter>
+    </ClCompile>
+    <ClCompile Include="SocketAddress.cpp">
+      <Filter>소스 파일\Socket</Filter>
+    </ClCompile>
+    <ClCompile Include="SocketAddressFactory.cpp">
+      <Filter>소스 파일\Socket</Filter>
+    </ClCompile>
+    <ClCompile Include="SocketException.cpp">
+      <Filter>소스 파일\Socket</Filter>
+    </ClCompile>
+    <ClCompile Include="SocketUtil.cpp">
+      <Filter>소스 파일\Socket</Filter>
+    </ClCompile>
+    <ClCompile Include="StringUtils.cpp">
+      <Filter>소스 파일\Socket</Filter>
+    </ClCompile>
+    <ClCompile Include="TCPSocket.cpp">
+      <Filter>소스 파일\Socket</Filter>
+    </ClCompile>
+    <ClCompile Include="UDPSocket.cpp">
+      <Filter>소스 파일\Socket</Filter>
+    </ClCompile>
+    <ClCompile Include="Timing.cpp">
+      <Filter>소스 파일\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine.cpp">
+      <Filter>소스 파일\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
