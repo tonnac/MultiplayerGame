@@ -18,7 +18,7 @@ public:
 	inline void GetWindowSize(int& inWidth, int& inHeight)
 	{
 		inWidth = mClientWidth;
-		inHeight = mCliendHeight;
+		inHeight = mClientHeight;
 	}
 
 protected:
@@ -37,13 +37,13 @@ private:
 #pragma region WindowProperty
 protected:
 	int mClientWidth = 1024;
-	int mCliendHeight = 768;
+	int mClientHeight = 768;
 
 private:
 	HWND mhMainWnd = nullptr;
 	HINSTANCE mhAppInst = nullptr;
 	
-	std::wstring mMainWndCaption = L"d3dApp";
+	std::wstring mMainWndCaption = TEXT("d3dApp");
 	static WindowClass* mWindow;
 
 	static WindowClass* GetApp()

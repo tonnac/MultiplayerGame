@@ -19,6 +19,13 @@
 #include <DirectXColors.h>
 #include <DirectXCollision.h>
 
+#pragma region DirectWrite
+#include <d2d1_3.h>
+#include <dwrite_3.h>
+#pragma comment(lib, "d2d1")
+#pragma comment(lib, "dwrite")
+#pragma endregion
+
 #pragma comment(lib, "d3d11")
 #pragma comment(lib, "dxgi")
 //#pragma comment(lib, "d3dx11")
@@ -38,6 +45,7 @@
 #include <functional>
 #include <locale>
 #include <codecvt>
+
 
 #define SINGLE(x)						\
 public:									\
@@ -74,8 +82,23 @@ using std::tstring;
 using std::wstring_convert;
 using std::codecvt_utf8_utf16;
 
+#ifndef SINGLETON_DEF
+
+#define SINGLETON(x)						\
+public:										\
+	static std::unique_ptr<x> sInstance;	\
+	static void StaticInit()				\
+	{										\
+		sInstance.reset(new x());			\
+	}										\
+SINGLE(x)									\
+private:									\
+x() {}
+#endif
+
 #include "d3dUtil.h"
 #include "MathHelper.h"
 #include "WindowClass.h"
 #include "Device.h"
 #include "Engine.h"
+#include "Direct2D.h"

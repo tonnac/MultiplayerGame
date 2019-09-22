@@ -23,15 +23,15 @@ bool WindowClass::InitMainWindow()
 	wc.hIcon = LoadIcon(0, IDI_APPLICATION);
 	wc.hCursor = LoadCursor(0, IDC_ARROW);
 	wc.hbrBackground = static_cast<HBRUSH>(GetStockObject(NULL_BRUSH));
-	wc.lpszClassName = L"MainWnd";
+	wc.lpszClassName = TEXT("MainWnd");
 
 	if (!RegisterClass(&wc))
 	{
-		MessageBox(0, L"Register Failed", 0, 0);
+		MessageBox(0, TEXT("Register Failed"), 0, 0);
 		return false;
 	}
 
-	RECT R = { 0, 0, mClientWidth, mCliendHeight };
+	RECT R = { 0, 0, mClientWidth, mClientHeight };
 	AdjustWindowRect(&R, WS_OVERLAPPEDWINDOW, FALSE);
 	int width = R.right - R.left;
 	int height = R.bottom - R.top;
@@ -41,7 +41,7 @@ bool WindowClass::InitMainWindow()
 
 	if (mhMainWnd == nullptr)
 	{
-		MessageBox(0, L"CreateWindow Failed.", 0, 0);
+		MessageBox(0, TEXT("CreateWindow Failed."), 0, 0);
 		return false;
 	}
 

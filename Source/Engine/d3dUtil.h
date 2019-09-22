@@ -1,5 +1,16 @@
 #pragma once
 
+#define GET_VARARGS_RESULT(msg, msgsize, len, lastarg, fmt, result) \
+	{																\
+		va_list ap;													\
+		va_start(ap, lastarg);										\
+		result = D3DUtil::GetVarArgs(msg, msgsize, fmt, ap);		\
+		if(result >= msgsize)										\
+		{															\
+			result = -1;											\
+		}															\
+		va_end(ap);													\
+	}
 
 namespace Colors
 {
@@ -149,6 +160,8 @@ namespace Colors
 
 class D3DUtil
 {
+	static constexpr int32_t STARTING_BUFFER_SIZE = 512;
+
 public:
 	static inline tstring AnsiToTString(const string& str)
 	{
@@ -156,6 +169,22 @@ public:
 		MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, buffer, 512);
 		return tstring(buffer);
 	}
+
+
+	template<typename ... ARGS>
+	static tstring Printf(const TCHAR* msg, ARGS ... arg)
+	{
+		return PrintfImpl(msg, arg...);
+	}
+
+private:
+	static int GetVarArgs(TCHAR* Dest, int DestSize, const TCHAR*& Fmt, va_list ArgPtr)
+	{
+		int Result = vswprintf(Dest, DestSize, Fmt, ArgPtr);
+		va_end(ArgPtr);
+		return Result;
+	}
+	static tstring PrintfImpl(const TCHAR* msg, ...);
 };
 
 class DxException

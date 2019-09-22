@@ -11,13 +11,11 @@ void Device::Initialize()
 {
 	Super::Initialize();
 	InitDirect3D();
-
-	OnResize();
 }
 
 void Device::InitDirect3D()
 {
-	UINT deviceFlags = 0; //= D3D11_CREATE_DEVICE_BGRA_SUPPORT;
+	UINT deviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 #ifdef _DEBUG
 	deviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
@@ -53,7 +51,7 @@ void Device::CreateSwapChain()
 
 	DXGI_MODE_DESC modeDesc{};
 	modeDesc.Width = mClientWidth;
-	modeDesc.Height = mCliendHeight;
+	modeDesc.Height = mClientHeight;
 	modeDesc.RefreshRate.Denominator = 1;
 	modeDesc.RefreshRate.Numerator = 60;
 	modeDesc.Format = mBackBufferFormat;
@@ -74,13 +72,15 @@ void Device::OnResize()
 	assert(md3dDevice);
 	assert(mSwapChain);
 
-	mDeviceContext->OMSetRenderTargets(0, nullptr, nullptr);
+	mDeviceContext->ClearState();
+
+//	mDeviceContext->OMSetRenderTargets(0, nullptr, nullptr);
 	
 	mRenderTargetView.Reset();
 	mDepthStencilView.Reset();
 
 	mSwapchainDesc.BufferDesc.Width = mClientWidth;
-	mSwapchainDesc.BufferDesc.Height = mCliendHeight;
+	mSwapchainDesc.BufferDesc.Height = mClientHeight;
 
 	ThrowDxFail(mSwapChain->ResizeBuffers(
 		mSwapchainDesc.BufferCount,
@@ -98,7 +98,7 @@ void Device::OnResize()
 	mViewPort.TopLeftX = 0;
 	mViewPort.TopLeftY = 0;
 	mViewPort.Width = static_cast<float>(mClientWidth);
-	mViewPort.Height = static_cast<float>(mCliendHeight);
+	mViewPort.Height = static_cast<float>(mClientHeight);
 	mViewPort.MinDepth = 0.f;
 	mViewPort.MaxDepth = 1.f;
 }
@@ -113,7 +113,7 @@ void Device::LogAdapters()
 		DXGI_ADAPTER_DESC desc{};
 		pAdapter->GetDesc(&desc);
 
-		tstring text = L"***Adapter: " + tstring(desc.Description) + L"\n";
+		tstring text = TEXT("***Adapter: ") + tstring(desc.Description) + TEXT("\n");
 
 		OutputDebugString(text.c_str());
 
@@ -138,9 +138,9 @@ void Device::LogAdapterOutput(IDXGIAdapter* inAdapter)
 		DXGI_OUTPUT_DESC desc{};
 		output->GetDesc(&desc);
 
-		tstring text = L"***Output: ";
+		tstring text = TEXT("***Output: ");
 		text += desc.DeviceName;
-		text += L"\n";
+		text += TEXT("\n");
 
 		OutputDebugString(text.c_str());
 
@@ -166,8 +166,8 @@ void Device::LogOutputDisplayModes(IDXGIOutput* inOutput, DXGI_FORMAT format)
 	{
 		UINT n = desc.RefreshRate.Numerator;
 		UINT d = desc.RefreshRate.Denominator;
-		tstring text = L"Width = " + to_tstring(desc.Width) + L" Height = " + to_tstring(desc.Height)
-			+ L" Refresh = " + to_tstring(n) + L"/" + to_tstring(d) + L"\n";
+		tstring text = TEXT("Width = ") + to_tstring(desc.Width) + TEXT(" Height = ") + to_tstring(desc.Height)
+			+ TEXT(" Refresh = ") + to_tstring(n) + TEXT("/") + to_tstring(d) + TEXT("\n");
 			
 		OutputDebugString(text.c_str());
 	}
@@ -180,7 +180,7 @@ void Device::CreateDepthStencilView()
 	ComPtr<ID3D11Texture2D> depthStencilTexture = nullptr;
 
 	D3D11_TEXTURE2D_DESC descDepth = 
-		CD3D11_TEXTURE2D_DESC(mDepthStencilFormat, mClientWidth, mCliendHeight);
+		CD3D11_TEXTURE2D_DESC(mDepthStencilFormat, mClientWidth, mClientHeight);
 	descDepth.MipLevels = 1;
 	descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 
@@ -202,7 +202,7 @@ LRESULT Device::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_SIZE:
 		mClientWidth = LOWORD(lParam);
-		mCliendHeight = HIWORD(lParam);
+		mClientHeight = HIWORD(lParam);
 		if (nullptr != md3dDevice)
 		{
 			if (wParam == SIZE_MINIMIZED)

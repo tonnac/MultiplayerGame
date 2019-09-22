@@ -16,11 +16,11 @@ public:
 protected:
 	//override
 	virtual LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)override;
+	virtual void OnResize();
 private:
 	//DirectX 11 Function
 	void InitDirect3D();
 	void CreateSwapChain();
-	virtual void OnResize();
 
 	void LogAdapters();
 	void LogAdapterOutput(IDXGIAdapter* inAdapter);

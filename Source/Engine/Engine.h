@@ -13,6 +13,9 @@ public:
 public:
 	virtual void Initialize() override;
 
+protected:
+	virtual void OnResize() override;
+
 private:
 	virtual void GameRun()override;
 	virtual void Update(float DeltaTimes);
@@ -24,4 +27,6 @@ private:
 private:
 	unique_ptr<Timing> mTimer;
 	static constexpr DirectX::XMFLOAT4 mBackColor = Colors::LightBlue;
+
+	friend class Direct2D;
 };
