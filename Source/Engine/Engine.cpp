@@ -1,5 +1,6 @@
 #include "EnginePCH.h"
 #include "Timing.h"
+#include "Direct2D.h"
 
 Engine::~Engine()
 {}
@@ -12,7 +13,11 @@ Engine::Engine(HINSTANCE hInst) : Device(hInst)
 void Engine::Initialize()
 {
 	Super::Initialize();
+
+//Direct2D
 	Direct2D::sInstance->Initialize(*this);
+
+//Timer
 	mTimer = std::make_unique<Timing>();
 
 	OnResize();
@@ -21,6 +26,8 @@ void Engine::Initialize()
 void Engine::GameRun()
 {
 	mTimer->Update();
+
+	CalculateFrameStats();
 
 	Update(mTimer->GetDeltaTime());
 	if (!mMinimized)
@@ -37,19 +44,34 @@ void Engine::Update(float DeltaTimes)
 void Engine::Draw()
 {
 	ClearBuffer();
-	Direct2D::sInstance->Begin();
 	GameDraw();
-	Direct2D::sInstance->End();
 	ThrowDxFail(mSwapChain->Present(0, 0));
+}
+
+void Engine::CalculateFrameStats()
+{
+	static int frameCnt = 0;
+	static float timeElapsed = 0.f;
+	static tstring frameText;
+
+	++frameCnt;
+	if (mTimer->GetFrameStartTime() - timeElapsed > 1.f)
+	{
+		float fps = static_cast<float>(frameCnt);
+		float mspf = 1 / fps;
+
+		frameText = D3DUtil::Printf(TEXT("FPS: %d mspf: %.6f"), frameCnt, mspf);
+
+		frameCnt = 0;
+		timeElapsed += 1;
+	}
+	Direct2D::sInstance->AddPermanentText({ float(mClientWidth - 280), 0.f, (float)mClientWidth, (float)mClientHeight }, Colors::Black,
+		frameText);
 }
 
 void Engine::GameDraw()
 {
 	Direct2D::sInstance->Draw();
-	Direct2D::sInstance->DrawText({0, 0, (float)mClientWidth, (float)mClientHeight}, D3DUtil::Printf(TEXT("%d qweq %f"), 32, 3.2f), Colors::Black);
-	Direct2D::sInstance->DrawText({ 0, 20, (float)mClientWidth, (float)mClientHeight }, D3DUtil::Printf(TEXT("%d qweq %f"), 32, mTimer->GetDeltaTime()), Colors::Black);
-	Direct2D::sInstance->DrawText({ 0, 40, (float)mClientWidth, (float)mClientHeight }, D3DUtil::Printf(TEXT("%d qweq %f"), 32, mTimer->GetDeltaTime()), Colors::Black);
-	Direct2D::sInstance->DrawText({ 0, 60, (float)mClientWidth, (float)mClientHeight }, D3DUtil::Printf(TEXT("%d qweq %f"), 32, 3.2f), Colors::Black);
 }
 
 void Engine::OnResize()

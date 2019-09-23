@@ -2,6 +2,9 @@
 
 WindowClass* WindowClass::mWindow = nullptr;
 
+int WindowClass::mClientWidth = 1024;
+int WindowClass::mClientHeight = 768;
+
 LRESULT CALLBACK
 MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {

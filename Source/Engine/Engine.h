@@ -1,6 +1,7 @@
 #pragma once
 
 class Timing;
+struct PermanentText;
 
 class Engine : public Device
 {
@@ -23,6 +24,8 @@ private:
 
 	void ClearBuffer();
 	void Draw();
+
+	void CalculateFrameStats();
 
 private:
 	unique_ptr<Timing> mTimer;

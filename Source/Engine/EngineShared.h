@@ -40,6 +40,7 @@
 #include <list>
 #include <queue>
 #include <deque>
+#include <stack>
 #include <unordered_set>
 #include <cassert>
 #include <functional>
@@ -78,6 +79,7 @@ using std::unordered_map;
 using std::string;
 using std::unordered_set;
 using std::tstring;
+using std::stack;
 
 using std::wstring_convert;
 using std::codecvt_utf8_utf16;

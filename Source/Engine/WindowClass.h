@@ -15,7 +15,7 @@ public:
 	virtual void Initialize();
 	int Run();
 
-	inline void GetWindowSize(int& inWidth, int& inHeight)
+	static inline void GetWindowSize(int& inWidth, int& inHeight)
 	{
 		inWidth = mClientWidth;
 		inHeight = mClientHeight;
@@ -36,8 +36,8 @@ private:
 
 #pragma region WindowProperty
 protected:
-	int mClientWidth = 1024;
-	int mClientHeight = 768;
+	static int mClientWidth;
+	static int mClientHeight;
 
 private:
 	HWND mhMainWnd = nullptr;

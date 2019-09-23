@@ -11,20 +11,67 @@ void Direct2D::Initialize(const Engine& inEngine)
 
 void Direct2D::Update(float DeltaTimes)
 {
-}
-
-void Direct2D::Begin()
-{
-	mDeviceContext->BeginDraw();
-}
-
-void Direct2D::End()
-{
-	mDeviceContext->EndDraw();
+	for (auto p = mTextlist.begin(); p != mTextlist.end();)
+	{
+		if (p->Update(DeltaTimes))
+		{
+			p = mTextlist.erase(p);
+		}
+		else
+		{
+			++p;
+		}
+	}
 }
 
 void Direct2D::Draw()
 {
+	mDeviceContext->BeginDraw();
+
+	if (!mPermanentText.empty())
+	{
+		while (!mPermanentText.empty())
+		{
+			const PermanentText element = mPermanentText.top();
+
+			mColorbrush->SetColor(D2D1::ColorF(element.Color.x, element.Color.y, element.Color.z, element.Color.w));
+			mDeviceContext->DrawText(element.Text.c_str(), static_cast<UINT32>(element.Text.length()),
+				mTextFormat.Get(), element.Rt, mColorbrush.Get());
+
+			mPermanentText.pop();
+		}
+	}
+
+	if (!mTextlist.empty())
+	{
+		int32_t i = 0;
+		int width, height;
+		WindowClass::GetWindowSize(width, height);
+
+		for (const TextStructure& element : mTextlist)
+		{
+			D2D1_RECT_F rt = { 0, i * mTextFormat->GetFontSize(), width, height };
+
+			mColorbrush->SetColor(D2D1::ColorF(element.Color.x, element.Color.y, element.Color.z, element.Color.w));
+			mDeviceContext->DrawText(element.Text.c_str(), static_cast<UINT32>(element.Text.length()),
+				mTextFormat.Get(), rt, mColorbrush.Get());
+			++i;
+		}
+	}
+
+	mDeviceContext->EndDraw();
+}
+
+void Direct2D::AddText(float inDuration, const DirectX::XMFLOAT4 inColor, const tstring& inText)
+{
+	TextStructure addText(inDuration, inText, inColor);
+	mTextlist.push_front(addText);
+}
+
+void Direct2D::AddPermanentText(const D2D1_RECT_F& rt, const DirectX::XMFLOAT4 inColor, const tstring& inText)
+{
+	PermanentText addText(rt, inColor, inText);
+	mPermanentText.push(addText);
 }
 
 void Direct2D::OnResize(IDXGISwapChain* inSwapChain)

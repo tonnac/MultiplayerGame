@@ -20,7 +20,7 @@ public:
 	float GetFrameStartTime() const { return mFrameStartTimef; }
 
 private:
-	static constexpr float mDesiredFrameTime = 1.f / 60.f;
+	static constexpr float mDesiredFrameTime = 1.f / 90000.f;
 	std::chrono::time_point<std::chrono::high_resolution_clock> mStartTime;
 
 	float mDeltaTime = 0.f;
