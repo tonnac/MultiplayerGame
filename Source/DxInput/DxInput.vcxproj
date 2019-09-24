@@ -132,6 +132,7 @@
     <ClInclude Include="d3dUtil.h" />
     <ClInclude Include="Device.h" />
     <ClInclude Include="Direct2D.h" />
+    <ClInclude Include="DirectInput.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="EnginePCH.h" />
     <ClInclude Include="EngineShared.h" />
@@ -143,6 +144,7 @@
     <ClCompile Include="d3dUtil.cpp" />
     <ClCompile Include="Device.cpp" />
     <ClCompile Include="Direct2D.cpp" />
+    <ClCompile Include="DirectInput.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Main.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

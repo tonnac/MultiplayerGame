@@ -1,6 +1,7 @@
 #pragma once
 #pragma warning(disable : 4005)
 #pragma warning(disable : 26495)
+#define DIRECTINPUT_VERSION 0x800
 
 #if defined(DEBUG) || defined(_DEBUG)
 #define _CRTDBG_MAP_ALLOC
@@ -107,6 +108,7 @@ x() {}
 #include "d3dUtil.h"
 #include "MathHelper.h"
 #include "WindowClass.h"
+#include "DirectInput.h"
 #include "Device.h"
 #include "Engine.h"
 #include "Direct2D.h"

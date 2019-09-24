@@ -10,13 +10,16 @@ Engine::~Engine()
 void Engine::Initialize()
 {
 #pragma region Singleton Instance
+	Super::StaticInit();
 	Direct2D::StaticInit();
+	DirectInput::StaticInit();
 #pragma endregion
 
+#pragma region Singleton Instance
 	Super::Initialize();
-
-//Direct2D
 	Direct2D::sInstance->Initialize(*this);
+	DirectInput::sInstance->Initialize();
+#pragma endregion
 
 //Timer
 	mTimer = std::make_shared<Timing>();
@@ -40,6 +43,16 @@ void Engine::GameRun()
 void Engine::Update(float DeltaTimes)
 {
 	Direct2D::sInstance->Update(DeltaTimes);
+	DirectInput::sInstance->Update(DeltaTimes);
+
+	{
+		if ((KEYSTATE(DIK_LCONTROL, Keystate::KEY_HOLD)) && (KEYSTATE(DIK_F, Keystate::KEY_PUSH)))
+		{
+			mShowFPS = !mShowFPS;
+		}
+	}
+
+	DirectInput::sInstance->PostUpdate(DeltaTimes);
 }
 
 void Engine::Draw()
@@ -66,8 +79,11 @@ void Engine::CalculateFrameStats()
 		frameCnt = 0;
 		timeElapsed += 1;
 	}
-	Direct2D::sInstance->AddPermanentText({ float(mClientWidth - 280), 0.f, (float)mClientWidth, (float)mClientHeight }, Colors::Black,
-		frameText);
+	if (mShowFPS)
+	{
+		Direct2D::sInstance->AddPermanentText({ float(mClientWidth - 280), 0.f, (float)mClientWidth, (float)mClientHeight }, Colors::Black,
+			frameText);
+	}
 }
 
 void Engine::GameDraw()

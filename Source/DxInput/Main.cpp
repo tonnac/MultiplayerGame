@@ -4,7 +4,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE prevInstance, _I
 {
 	try
 	{
-		ENGINE->StaticInit();
+		Engine::StaticInit();
 		ENGINE->SetHInstance(hInstance);
 
 		ENGINE->Initialize();

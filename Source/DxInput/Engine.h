@@ -30,6 +30,8 @@ private:
 	shared_ptr<Timing> mTimer;
 	static constexpr DirectX::XMFLOAT4 mBackColor = Colors::LightBlue;
 
+	bool mShowFPS = true;
+
 	friend class Direct2D;
 
 	SINGLETON(Engine)
