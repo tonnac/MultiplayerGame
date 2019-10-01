@@ -1,4 +1,4 @@
-cbuffer VS_CB : register(b0)
+cbuffer VS_CB : register(b1)
 {
 	float4x4 gWorldViewProj;
 };

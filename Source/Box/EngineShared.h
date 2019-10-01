@@ -25,7 +25,7 @@
 //#pragma comment(lib, "d3dx11")
 #pragma comment(lib, "d3dcompiler")
 
-#pragma region DirectWrite
+#pragma region Direct2D 
 #include <d2d1_3.h>
 #include <dwrite_3.h>
 #pragma comment(lib, "d2d1")
@@ -92,6 +92,11 @@ using std::array;
 
 using std::wstring_convert;
 using std::codecvt_utf8_utf16;
+
+using DirectX::XMFLOAT3;
+using DirectX::XMFLOAT4;
+
+using DirectX::XMVECTOR;
 
 #ifndef SINGLETON_DEF
 

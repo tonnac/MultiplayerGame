@@ -15,12 +15,13 @@ public:
 
 protected:
 	virtual void OnResize() override;
-
-	virtual void GameRun()override;
-	virtual void Update(float DeltaTimes);
+	virtual void Tick(float DeltaTimes);
 	virtual void GameDraw();
 
 private:
+	virtual void GameRun()override;
+	void Update(float DeltaTimes);
+
 	void ClearBuffer();
 	void Draw();
 

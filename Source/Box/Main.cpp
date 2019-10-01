@@ -1,7 +1,5 @@
 #include "EnginePCH.h"
 
-using DirectX::XMFLOAT3;
-using DirectX::XMFLOAT4;
 
 struct Vertex
 {
@@ -20,8 +18,16 @@ class Sample : public Engine
 public:
 	virtual void Initialize()override;
 private:
-	virtual void Update(float DeltaTimes);
+	virtual void Tick(float DeltaTimes);
 	virtual void GameDraw()override;
+
+	void CreateVBIB();
+	void CreateVSPSIL();
+	void CreateCB();
+
+private:
+	void SubDivideGeometry(vector<Vertex>& inVertex, vector<uint16_t>& inIndices);
+	Vertex MidPoint(const Vertex& inLeft, const Vertex& inRight);
 
 private:
 	Microsoft::WRL::ComPtr<ID3DBlob> mVertexBlob = nullptr;
@@ -34,6 +40,11 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> mIndexBuffer = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> mVertexBuffer = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> mConstantBuffer = nullptr;
+
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRasterizer = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> mWireframe = nullptr;
+
+	ID3D11RasterizerState* mRaster = nullptr;
 
 	CB mConstantData;
 
@@ -67,40 +78,146 @@ void Sample::Initialize()
 {
 	Super::Initialize();
 
+	CreateVBIB();
+	CreateVSPSIL();
+	CreateCB();
+
+	D3D11_RASTERIZER_DESC rsDesc = CD3D11_RASTERIZER_DESC(D3D11_DEFAULT);
+
+	ThrowDxFail(md3dDevice->CreateRasterizerState(&rsDesc, mRasterizer.GetAddressOf()));
+	rsDesc.FillMode = D3D11_FILL_WIREFRAME;
+	ThrowDxFail(md3dDevice->CreateRasterizerState(&rsDesc, mWireframe.GetAddressOf()));
+}
+
+void Sample::Tick(float DeltaTimes)
+{
+	Super::Tick(DeltaTimes);
+
+	constexpr float radspeed = 50.f;
+	constexpr float speed = 300.f;
+
+	if (KEYSTATE(DIK_D, Keystate::KEY_HOLD))
+	{
+		mPhi += DirectX::XMConvertToRadians(DeltaTimes * radspeed);
+	}
+	if (KEYSTATE(DIK_LBUTTON, Keystate::KEY_HOLD))
+	{
+		MousePos cPos = DirectInput::sInstance->GetMousePos();
+		MousePos lPos = DirectInput::sInstance->GetLastMousePos();
+
+		mPhi += DirectX::XMConvertToRadians(DeltaTimes * radspeed * cPos.lX - lPos.lX);
+		mTheta += DirectX::XMConvertToRadians(DeltaTimes * radspeed * cPos.lY - lPos.lY);
+		mTheta = MathHelper::Clamp(mTheta, 0.1f, DirectX::XM_PI - 0.1f);
+	}
+	if (KEYSTATE(DIK_A, Keystate::KEY_HOLD))
+	{
+		mPhi -= DirectX::XMConvertToRadians(DeltaTimes * radspeed);
+	}
+	if (KEYSTATE(DIK_W, Keystate::KEY_HOLD))
+	{
+		mTheta += DirectX::XMConvertToRadians(DeltaTimes * radspeed);
+		mTheta = MathHelper::Clamp(mTheta, 0.1f, DirectX::XM_PI - 0.1f);
+	}
+	if (KEYSTATE(DIK_S, Keystate::KEY_HOLD))
+	{
+		mTheta -= DirectX::XMConvertToRadians(DeltaTimes * radspeed);
+		mTheta = MathHelper::Clamp(mTheta, 0.1f, DirectX::XM_PI - 0.1f);
+	}
+	if (KEYSTATE(DIK_DOWNARROW, Keystate::KEY_HOLD))
+	{
+		mRadius += DeltaTimes * speed;
+		mRadius = MathHelper::Clamp(mRadius, 100.f, 600.f);
+	}
+	if (KEYSTATE(DIK_UPARROW, Keystate::KEY_HOLD))
+	{
+		mRadius -= DeltaTimes * speed;
+		mRadius = MathHelper::Clamp(mRadius, 100.f, 600.f);
+	}
+	if (KEYSTATE(DIK_M, Keystate::KEY_PUSH))
+	{
+		if (mRaster == mWireframe.Get())
+		{
+			mRaster = mRasterizer.Get();
+		}
+		else
+		{
+			mRaster = mWireframe.Get();
+		}
+	}
+
+	float x = mRadius * sinf(mTheta) * cosf(mPhi);
+	float y = mRadius * cosf(mTheta);
+	float z = mRadius * sinf(mTheta) * sinf(mPhi);
+
+	DirectX::XMVECTOR pos = DirectX::XMVectorSet(x, y, z, 1.f);
+	DirectX::XMVECTOR target = DirectX::XMVectorZero();
+	DirectX::XMVECTOR up = DirectX::XMVectorSet(0.f, 1.f, 0.f, 0.f);
+
+	DirectX::XMMATRIX world = DirectX::XMMatrixIdentity();
+	DirectX::XMMATRIX look = DirectX::XMMatrixLookAtLH(pos, target, up);
+	DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovLH(0.25f * DirectX::XM_PI, 1.33f, 1, 1000);
+	DirectX::XMMATRIX worldviewproj = world * look * proj;
+
+	DirectX::XMStoreFloat4x4(&mConstantData.gWorldViewProj, DirectX::XMMatrixTranspose(worldviewproj));
+
+	mDeviceContext->UpdateSubresource(mConstantBuffer.Get(), 0, nullptr, &mConstantData, 0, 0);
+}
+
+void Sample::GameDraw()
+{
+	Super::GameDraw();
+	unsigned int stride = sizeof(Vertex);
+	unsigned int offset = 0;
+	mDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	mDeviceContext->IASetInputLayout(mInputlayout.Get());
+	mDeviceContext->IASetVertexBuffers(0, 1, mVertexBuffer.GetAddressOf(), &stride, &offset);
+	mDeviceContext->VSSetConstantBuffers(1, 1, mConstantBuffer.GetAddressOf());
+	mDeviceContext->IASetIndexBuffer(mIndexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0);
+	mDeviceContext->VSSetShader(mVertexShader.Get(), nullptr, 0);
+	mDeviceContext->PSSetShader(mPixelShader.Get(), nullptr, 0);
+	mDeviceContext->RSSetState(mRaster);
+	mDeviceContext->DrawIndexed((UINT)mIndexBlob->GetBufferSize() / sizeof(uint16_t), 0, 0);
+}
+
+void Sample::CreateVBIB()
+{
 	array<Vertex, 24> triangle = {
 		//Front
-		Vertex{{-37.5f,	-37.5f,	-37.5f}, Colors::Cyan},
-		Vertex{{-37.5f,	37.5f,	-37.5f}, Colors::PaleVioletRed},
-		Vertex{{37.5f,	37.5f,	-37.5f}, Colors::SandyBrown},
-		Vertex{{37.5f,	-37.5f,	-37.5f}, Colors::OliveDrab},
+		Vertex{{-75.0f,	-75.0f,	-75.0f}, Colors::Cyan},
+		Vertex{{-75.0f,	75.0f,	-75.0f}, Colors::PaleVioletRed},
+		Vertex{{75.0f,	75.0f,	-75.0f}, Colors::SandyBrown},
+		Vertex{{75.0f,	-75.0f,	-75.0f}, Colors::OliveDrab},
 		//Up
-		Vertex{{-37.5f,	37.5f,	-37.5f}, Colors::PaleVioletRed},
-		Vertex{{-37.5f,	37.5f,	37.5f}, Colors::MediumSpringGreen},
-		Vertex{{37.5f,	37.5f,	37.5f}, Colors::LightCoral},
-		Vertex{{37.5f,	37.5f,	-37.5f}, Colors::Fuchsia},
+		Vertex{{-75.0f,	75.0f,	-75.0f}, Colors::PaleVioletRed},
+		Vertex{{-75.0f,	75.0f,	75.0f}, Colors::MediumSpringGreen},
+		Vertex{{75.0f,	75.0f,	75.0f}, Colors::LightCoral},
+		Vertex{{75.0f,	75.0f,	-75.0f}, Colors::Fuchsia},
 		//Left
-		Vertex{{-37.5f,	-37.5f,	37.5f}, Colors::RosyBrown},
-		Vertex{{-37.5f,	37.5f,	37.5f}, Colors::Silver},
-		Vertex{{-37.5f,	37.5f,	-37.5f}, Colors::RosyBrown},
-		Vertex{{-37.5f,	-37.5f,	-37.5f}, Colors::Silver},
+		Vertex{{-75.0f,	-75.0f,	75.0f}, Colors::RosyBrown},
+		Vertex{{-75.0f,	75.0f,	75.0f}, Colors::Silver},
+		Vertex{{-75.0f,	75.0f,	-75.0f}, Colors::RosyBrown},
+		Vertex{{-75.0f,	-75.0f,	-75.0f}, Colors::Silver},
 		//Right
-		Vertex{{37.5f,	-37.5f,	-37.5f}, Colors::Moccasin},
-		Vertex{{37.5f,	37.5f,	-37.5f}, Colors::Honeydew},
-		Vertex{{37.5f,	37.5f,	37.5f}, Colors::SlateBlue},
-		Vertex{{37.5f,	-37.5f,	37.5f}, Colors::LightCoral},
+		Vertex{{75.0f,	-75.0f,	-75.0f}, Colors::Moccasin},
+		Vertex{{75.0f,	75.0f,	-75.0f}, Colors::Honeydew},
+		Vertex{{75.0f,	75.0f,	75.0f}, Colors::SlateBlue},
+		Vertex{{75.0f,	-75.0f,	75.0f}, Colors::LightCoral},
 		//Back
-		Vertex{{-37.5f,	-37.5f,	37.5f}, Colors::Gold},
-		Vertex{{37.5f,	-37.5f,	37.5f}, Colors::DarkMagenta},
-		Vertex{{37.5f,	37.5f,	37.5f}, Colors::Ivory},
-		Vertex{{-37.5f,	37.5f,	37.5f}, Colors::Indigo},
+		Vertex{{-75.0f,	-75.0f,	75.0f}, Colors::Gold},
+		Vertex{{75.0f,	-75.0f,	75.0f}, Colors::DarkMagenta},
+		Vertex{{75.0f,	75.0f,	75.0f}, Colors::Ivory},
+		Vertex{{-75.0f,	75.0f,	75.0f}, Colors::Indigo},
 		//Down
-		Vertex{{-37.5f,	-37.5f,	-37.5f}, Colors::White},
-		Vertex{{37.5f,	-37.5f,	-37.5f}, Colors::RoyalBlue},
-		Vertex{{37.5f,	-37.5f,	37.5f}, Colors::YellowGreen},
-		Vertex{{-37.5f,	-37.5f,	37.5f}, Colors::WhiteSmoke},
+		Vertex{{-75.0f,	-75.0f,	-75.0f}, Colors::White},
+		Vertex{{75.0f,	-75.0f,	-75.0f}, Colors::RoyalBlue},
+		Vertex{{75.0f,	-75.0f,	75.0f}, Colors::YellowGreen},
+		Vertex{{-75.0f,	-75.0f,	75.0f}, Colors::WhiteSmoke},
 	};
 
-	array<uint16_t, 36> indicies = { 
+	vector<Vertex> v;
+	v.assign(&(triangle.data())[0], &(triangle.data())[triangle.size()]);
+
+	array<uint16_t, 36> indicies = {
 		0, 1, 2 ,
 		0, 2, 3 ,
 
@@ -120,24 +237,31 @@ void Sample::Initialize()
 		20, 22, 23
 	};
 
-	constexpr uint32_t vbByteSize = static_cast<uint32_t>(triangle.size() * sizeof(Vertex));
-	constexpr uint16_t ibByteSize = static_cast<uint16_t>(indicies.size() * sizeof(uint16_t));
+	vector<uint16_t> i;
+	i.assign(&(indicies.data())[0], &(indicies.data())[indicies.size()]);
+
+	for (int p = 0; p < 5; ++p)
+	{
+		SubDivideGeometry(v, i);
+	}
+
+	const uint32_t vbByteSize = static_cast<uint32_t>(v.size() * sizeof(Vertex));
+	const uint32_t ibByteSize = static_cast<uint32_t>(i.size() * sizeof(uint16_t));
 
 	D3DCreateBlob(vbByteSize, mVertexBlob.GetAddressOf());
-	memcpy(mVertexBlob->GetBufferPointer(), triangle.data(), vbByteSize);
+	memcpy(mVertexBlob->GetBufferPointer(), v.data(), vbByteSize);
 	D3DCreateBlob(ibByteSize, mIndexBlob.GetAddressOf());
-	memcpy(mIndexBlob->GetBufferPointer(), indicies.data(), ibByteSize);
+	memcpy(mIndexBlob->GetBufferPointer(), i.data(), ibByteSize);
 
 	D3D11_BUFFER_DESC bufferDesc{};
 	D3D11_SUBRESOURCE_DATA sourceData{};
 
 	sourceData.pSysMem = mVertexBlob->GetBufferPointer();
-	
+
 	bufferDesc.ByteWidth = (UINT)mVertexBlob->GetBufferSize();
 	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bufferDesc.CPUAccessFlags = 0;
-
 
 	ThrowDxFail(md3dDevice->CreateBuffer(&bufferDesc, &sourceData, &mVertexBuffer));
 
@@ -146,13 +270,17 @@ void Sample::Initialize()
 
 	indexsourceData.pSysMem = mIndexBlob->GetBufferPointer();
 
-	indexbufferDesc.ByteWidth = (UINT)mVertexBlob->GetBufferSize();
+	indexbufferDesc.ByteWidth = (UINT)mIndexBlob->GetBufferSize();
 	indexbufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	indexbufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	indexbufferDesc.CPUAccessFlags = 0;
 
 	ThrowDxFail(md3dDevice->CreateBuffer(&indexbufferDesc, &indexsourceData, mIndexBuffer.GetAddressOf()));
 
+}
+
+void Sample::CreateVSPSIL()
+{
 	DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
 
 #if defined(DEBUG) || defined(_DEBUG)
@@ -199,6 +327,10 @@ void Sample::Initialize()
 
 	ThrowDxFail(md3dDevice->CreateInputLayout(layout.data(), (UINT)std::size(layout), byteCode->GetBufferPointer(), byteCode->GetBufferSize(), mInputlayout.GetAddressOf()));
 
+}
+
+void Sample::CreateCB()
+{
 	//Constant Buffer;
 
 	D3D11_BUFFER_DESC constanctbufferDesc{};
@@ -210,91 +342,75 @@ void Sample::Initialize()
 
 	constantsourceData.pSysMem = &mConstantData;
 
-	ThrowDxFail(md3dDevice->CreateBuffer(&constanctbufferDesc, &constantsourceData, mConstantBuffer.GetAddressOf())); 
+	ThrowDxFail(md3dDevice->CreateBuffer(&constanctbufferDesc, &constantsourceData, mConstantBuffer.GetAddressOf()));
 }
 
-void Sample::Update(float DeltaTimes)
+void Sample::SubDivideGeometry(vector<Vertex>& inVertex, vector<uint16_t>& inIndices)
 {
-	Super::Update(DeltaTimes);
+	vector<Vertex> tempVertex = inVertex;
+	vector<uint16_t> tempIndex = inIndices;
 
-	constexpr float radspeed = 50.f;
-	constexpr float speed = 300.f;
+	inVertex.resize(0);
+	inIndices.resize(0);
 
-	if (KEYSTATE(DIK_D, Keystate::KEY_HOLD))
+	int triNum = static_cast<int>(tempIndex.size() / 3);
+
+	for (int i = 0; i < triNum; ++i)
 	{
-		MousePos lastpos = DirectInput::sInstance->GetLastMousePos();
-		MousePos currentpos = DirectInput::sInstance->GetMousePos();
+		Vertex v0 = tempVertex[tempIndex[(size_t)i * 3 + 0]];
+		Vertex v1 = tempVertex[tempIndex[(size_t)i * 3 + 1]];
+		Vertex v2 = tempVertex[tempIndex[(size_t)i * 3 + 2]];
 
-		mPhi += DirectX::XMConvertToRadians(DeltaTimes * radspeed);
+		Vertex m0 = MidPoint(v0, v1);
+		Vertex m1 = MidPoint(v1, v2);
+		Vertex m2 = MidPoint(v0, v2);
+
+		inVertex.push_back(v0);
+		inVertex.push_back(m0);
+		inVertex.push_back(m2);
+		inVertex.push_back(v1);
+		inVertex.push_back(m1);
+		inVertex.push_back(v2);
+
+		inIndices.push_back(i * 6 + 0);
+		inIndices.push_back(i * 6 + 1);
+		inIndices.push_back(i * 6 + 2);
+								
+		inIndices.push_back(i * 6 + 1);
+		inIndices.push_back(i * 6 + 4);
+		inIndices.push_back(i * 6 + 2);
+								
+		inIndices.push_back(i * 6 + 1);
+		inIndices.push_back(i * 6 + 3);
+		inIndices.push_back(i * 6 + 4);
+								
+		inIndices.push_back(i * 6 + 2);
+		inIndices.push_back(i * 6 + 4);
+		inIndices.push_back(i * 6 + 5);
 	}
-	if (KEYSTATE(DIK_A, Keystate::KEY_HOLD))
-	{
-		MousePos lastpos = DirectInput::sInstance->GetLastMousePos();
-		MousePos currentpos = DirectInput::sInstance->GetMousePos();
-
-		mPhi -= DirectX::XMConvertToRadians(DeltaTimes * radspeed);
-	}
-	if (KEYSTATE(DIK_W, Keystate::KEY_HOLD))
-	{
-		MousePos lastpos = DirectInput::sInstance->GetLastMousePos();
-		MousePos currentpos = DirectInput::sInstance->GetMousePos();
-
-		mTheta += DirectX::XMConvertToRadians(DeltaTimes * radspeed);
-		mTheta = MathHelper::Clamp(mTheta, 0.1f, DirectX::XM_PI - 0.1f);
-	}
-	if (KEYSTATE(DIK_S, Keystate::KEY_HOLD))
-	{
-		MousePos lastpos = DirectInput::sInstance->GetLastMousePos();
-		MousePos currentpos = DirectInput::sInstance->GetMousePos();
-
-		mTheta -= DirectX::XMConvertToRadians(DeltaTimes * radspeed);
-		mTheta = MathHelper::Clamp(mTheta, 0.1f, DirectX::XM_PI - 0.1f);
-	}
-
-	if (KEYSTATE(DIK_DOWNARROW, Keystate::KEY_HOLD))
-	{
-		mRadius += DeltaTimes * speed;
-		mRadius = MathHelper::Clamp(mRadius, 100.f, 600.f);
-	}
-
-	if (KEYSTATE(DIK_UPARROW, Keystate::KEY_HOLD))
-	{
-		mRadius -= DeltaTimes * speed;
-		mRadius = MathHelper::Clamp(mRadius, 100.f, 600.f);
-	}
-
-	float x = mRadius * sinf(mTheta) * cosf(mPhi);
-	float y = mRadius * cosf(mTheta);
-	float z = mRadius * sinf(mTheta) * sinf(mPhi);
-
-	DirectX::XMVECTOR pos = DirectX::XMVectorSet(x, y, z, 1.f);
-	DirectX::XMVECTOR target = DirectX::XMVectorZero();
-	DirectX::XMVECTOR up = DirectX::XMVectorSet(0.f, 1.f, 0.f, 0.f);
-
-	DirectX::XMMATRIX world = DirectX::XMMatrixIdentity();
-
-	DirectX::XMMATRIX look = DirectX::XMMatrixLookAtLH(pos, target, up);
-
-	DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovLH(0.25f * DirectX::XM_PI, 1.33f, 1, 1000);
-
-	DirectX::XMMATRIX worldviewproj = world * look * proj;
-
-	DirectX::XMStoreFloat4x4(&mConstantData.gWorldViewProj, DirectX::XMMatrixTranspose(worldviewproj));
-
-	mDeviceContext->UpdateSubresource(mConstantBuffer.Get(), 0, nullptr, &mConstantData, 0, 0);
 }
 
-void Sample::GameDraw()
+Vertex Sample::MidPoint(const Vertex& inLeft, const Vertex& inRight)
 {
-	Super::GameDraw();
-	unsigned int stride = sizeof(Vertex);
-	unsigned int offset = 0;
-	mDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	mDeviceContext->IASetInputLayout(mInputlayout.Get());
-	mDeviceContext->IASetVertexBuffers(0, 1, mVertexBuffer.GetAddressOf(), &stride, &offset);
-	mDeviceContext->VSSetConstantBuffers(0, 1, mConstantBuffer.GetAddressOf());
-	mDeviceContext->IASetIndexBuffer(mIndexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0);
-	mDeviceContext->VSSetShader(mVertexShader.Get(), nullptr, 0);
-	mDeviceContext->PSSetShader(mPixelShader.Get(), nullptr, 0);
-	mDeviceContext->DrawIndexed((UINT)mIndexBlob->GetBufferSize() / sizeof(uint16_t), 0, 0);
+	using namespace DirectX;
+
+	XMVECTOR lPosVec = DirectX::XMLoadFloat3(&inLeft.Pos);
+	XMVECTOR rPosVec = DirectX::XMLoadFloat3(&inRight.Pos);
+
+	XMVECTOR midPos = (lPosVec + rPosVec) * 0.5f;
+
+	XMFLOAT3 Pos;
+
+	DirectX::XMStoreFloat3(&Pos, midPos);
+
+	XMVECTOR lColVec = DirectX::XMLoadFloat4(&inLeft.Color);
+	XMVECTOR rColVec = DirectX::XMLoadFloat4(&inRight.Color);
+
+	XMVECTOR midColor = (lColVec + rColVec) * 0.5f;
+
+	XMFLOAT4 color;
+
+	DirectX::XMStoreFloat4(&color, midColor);
+
+	return { Pos , color};
 }

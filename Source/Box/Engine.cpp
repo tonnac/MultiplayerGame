@@ -57,6 +57,8 @@ void Engine::Update(float DeltaTimes)
 		}
 	}
 
+	Tick(DeltaTimes);
+
 	DirectInput::sInstance->PostUpdate(DeltaTimes);
 }
 
@@ -101,6 +103,10 @@ void Engine::OnResize()
 	Direct2D::sInstance->Reset();
 	Super::OnResize();
 	Direct2D::sInstance->OnResize(mSwapChain.Get());
+}
+
+void Engine::Tick(float DeltaTimes)
+{
 }
 
 void Engine::ClearBuffer()

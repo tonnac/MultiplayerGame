@@ -35,9 +35,6 @@ public:
 	MousePos GetLastMousePos() const;
 
 private:
-	MousePos getMousePos() const;
-
-private:
 	Microsoft::WRL::ComPtr<IDirectInput8> mDirectInput = nullptr;
 	Microsoft::WRL::ComPtr<IDirectInputDevice8> mKeyboardDevice = nullptr;
 	Microsoft::WRL::ComPtr<IDirectInputDevice8> mMouseDevice = nullptr;
@@ -47,9 +44,6 @@ private:
 
 	DIMOUSESTATE mCurrentMouseState = {};
 	DIMOUSESTATE mBeforeMouseState = {};
-
-	MousePos mLastMousepos;
-	MousePos mCurrentMousepos;
 
 	SINGLETON(DirectInput)
 };

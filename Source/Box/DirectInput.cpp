@@ -17,13 +17,10 @@ void DirectInput::Initialize()
 	ThrowDxFail(mMouseDevice->SetDataFormat(&c_dfDIMouse));
 	ThrowDxFail(mMouseDevice->SetCooperativeLevel(WindowClass::GetWindowHandle(), DISCL_NONEXCLUSIVE | DISCL_FOREGROUND));
 	while (mMouseDevice->Acquire() == DIERR_INPUTLOST);
-
-	mCurrentMousepos = GetMousePos();
 }
 
 void DirectInput::Update(float DeltaTimes)
 {
-	mLastMousepos = mCurrentMousepos;
 	if (FAILED(mKeyboardDevice->GetDeviceState(sizeof(uint8_t) * MAXKEYNUM, mCurrentKeystate)))
 	{
 		while (mKeyboardDevice->Acquire() == DIERR_INPUTLOST);
@@ -35,7 +32,6 @@ void DirectInput::Update(float DeltaTimes)
 		while (mMouseDevice->Acquire() == DIERR_INPUTLOST);
 		mMouseDevice->Acquire();
 	}
-	mCurrentMousepos = GetMousePos();
 }
 
 void DirectInput::PostUpdate(float DeltaTimes)
@@ -46,17 +42,12 @@ void DirectInput::PostUpdate(float DeltaTimes)
 
 MousePos DirectInput::GetMousePos() const
 {
-	return mCurrentMousepos;
+	return MousePos{ mCurrentMouseState.lX, mCurrentMouseState.lY, mCurrentMouseState.lZ };
 }
 
 MousePos DirectInput::GetLastMousePos() const
 {
-	return mLastMousepos;
-}
-
-MousePos DirectInput::getMousePos() const
-{
-	return MousePos{ mCurrentMouseState.lX, mCurrentMouseState.lY, mCurrentMouseState.lZ };
+	return MousePos{ mBeforeMouseState.lX, mBeforeMouseState.lY, mBeforeMouseState.lZ };
 }
 
 Keystate DirectInput::GetKeystate(DWORD dwKey) const
