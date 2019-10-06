@@ -177,7 +177,7 @@ void Sample::CreateVBIB()
 {
 	GeometryGenerator g;
 
-	GeometryGenerator::MeshData m = g.CreateCylinder(70.0f, 20.0f, 400.0f, 240, 240);
+	GeometryGenerator::MeshData m = g.CreateCylinder(40.0f, 20.0f, 200.0f, 240, 240);
 
 	size_t sz = m.Vertices.size() * sizeof(Vertex);
 

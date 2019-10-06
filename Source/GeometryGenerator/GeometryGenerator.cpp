@@ -279,8 +279,8 @@ void GeometryGenerator::BuildCylinderTopCap(float bottomRadius, float topRadius,
 		float x = topRadius * cosf(theta);
 		float z = topRadius * sinf(theta);
 
-		float u = x / height + 0.5f;
-		float v = z / height + 0.5f;
+		float u = (x / height) * 0.5f + 0.5f;
+		float v = (z / height) * 0.5f + 0.5f;
 		Vertex v0(XMFLOAT3(x, y, z), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f), XMFLOAT2(u, v));
 		meshData.Vertices.push_back(v0);
 	}
@@ -309,8 +309,8 @@ void GeometryGenerator::BuildCylinderBottomCap(float bottomRadius, float topRadi
 		float x = bottomRadius * cosf(theta);
 		float z = bottomRadius * sinf(theta);
 
-		float u = x / height + 0.5f;
-		float v = z / height + 0.5f;
+		float u = (x / height) * 0.5f + 0.5f;
+		float v = (z / height) * 0.5f + 0.5f;
 
 		Vertex v0(XMFLOAT3(x, -height * 0.5f, z), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f), XMFLOAT2(u, v));
 		meshData.Vertices.push_back(v0);
