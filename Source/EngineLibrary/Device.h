@@ -1,0 +1,53 @@
+#pragma once
+
+class Device : public WindowClass
+{
+	using Super = WindowClass;
+
+public:
+	Device() {}
+	virtual ~Device();
+	virtual void Initialize() override;
+
+	ID3D11Device* GetDevice() { return md3dDevice.Get(); }
+	ID3D11DeviceContext* GetDeviceContext() { return mDeviceContext.Get(); }
+
+protected:
+	//override
+	virtual LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)override;
+	virtual void OnResize();
+private:
+	//DirectX 11 Function
+	void InitDirect3D();
+	void CreateSwapChain();
+
+	void LogAdapters();
+	void LogAdapterOutput(IDXGIAdapter* inAdapter);
+	void LogOutputDisplayModes(IDXGIOutput* inOutput, DXGI_FORMAT format);
+
+	void CreateDepthStencilView();
+
+protected:
+	bool mMinimized = false;
+	bool mMaximized = false;
+	bool mResizing = false;
+	bool mFullscreenState = false;
+
+protected:
+	Microsoft::WRL::ComPtr<ID3D11Device> md3dDevice = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext> mDeviceContext = nullptr;
+
+	Microsoft::WRL::ComPtr<IDXGIFactory> mDxgiFactory = nullptr;
+	Microsoft::WRL::ComPtr<IDXGISwapChain> mSwapChain = nullptr;
+
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> mRenderTargetView = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> mDepthStencilView = nullptr;
+
+	D3D11_VIEWPORT mViewPort = {};
+
+	DXGI_SWAP_CHAIN_DESC mSwapchainDesc = {};
+	D3D_FEATURE_LEVEL mFeatureLevel = {};
+
+	static constexpr DXGI_FORMAT mBackBufferFormat = DXGI_FORMAT_B8G8R8A8_UNORM;
+	static constexpr DXGI_FORMAT mDepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+};

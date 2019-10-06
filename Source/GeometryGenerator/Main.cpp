@@ -1,5 +1,5 @@
+#include "GeometryGenerator.h"
 #include "EnginePCH.h"
-
 
 struct Vertex
 {
@@ -26,6 +26,7 @@ struct CBObj
 class Sample : public Engine
 {
 	using Super = Engine;
+	using IndexSize = uint32_t;
 public:
 	virtual void Initialize()override;
 private:
@@ -122,6 +123,8 @@ void Sample::Initialize()
 	ThrowDxFail(md3dDevice->CreateRasterizerState(&rsDesc, mRasterizer.GetAddressOf()));
 	rsDesc.FillMode = D3D11_FILL_WIREFRAME;
 	ThrowDxFail(md3dDevice->CreateRasterizerState(&rsDesc, mWireframe.GetAddressOf()));
+
+	mRaster = mRasterizer.Get();
 }
 
 void Sample::Tick(float DeltaTimes)
@@ -146,13 +149,9 @@ void Sample::Tick(float DeltaTimes)
 	mDeviceContext->UpdateSubresource(mObjConstant.Get(), 0, nullptr, &mObjConstantData, 0, 0);
 	mDeviceContext->UpdateSubresource(mConstantBuffer.Get(), 0, nullptr, &mConstantData, 0, 0);
 	
-	tstring Forward = D3DUtil::Printf(TEXT("Forward x: %.2f, y: %.2f, z: %.2f"), mFowardVector.x, mFowardVector.y, mFowardVector.z);
-	tstring Right = D3DUtil::Printf(TEXT("Right x: %.2f, y: %.2f, z: %.2f"), mRightVector.x, mRightVector.y, mRightVector.z);
-	tstring Up = D3DUtil::Printf(TEXT("Up x: %.2f, y: %.2f, z: %.2f"), mUpVector.x, mUpVector.y, mUpVector.z);
+	tstring Forward = D3DUtil::Printf(TEXT("Location x: %.2f, y: %.2f, z: %.2f"), mLocation.x, mLocation.y, mLocation.z);
 
 	Direct2D::sInstance->AddPermanentText({ 0.f, 0.f, 1024.f, 768.f }, Colors::Black, Forward);
-	Direct2D::sInstance->AddPermanentText({ 0.f, 20.f, 1024.f, 768.f }, Colors::Black, Right);
-	Direct2D::sInstance->AddPermanentText({ 0.f, 40.f, 1024.f, 768.f }, Colors::Black, Up);
 }
 
 void Sample::GameDraw()
@@ -165,83 +164,44 @@ void Sample::GameDraw()
 	mDeviceContext->IASetVertexBuffers(0, 1, mVertexBuffer.GetAddressOf(), &stride, &offset);
 	mDeviceContext->VSSetConstantBuffers(0, 1, mConstantBuffer.GetAddressOf());
 	mDeviceContext->VSSetConstantBuffers(1, 1, mObjConstant.GetAddressOf());
-	mDeviceContext->IASetIndexBuffer(mIndexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0);
+	mDeviceContext->IASetIndexBuffer(mIndexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 	mDeviceContext->VSSetShader(mVertexShader.Get(), nullptr, 0);
 	mDeviceContext->PSSetShader(mPixelShader.Get(), nullptr, 0);
 	mDeviceContext->RSSetState(mRaster);
 	mDeviceContext->PSSetShaderResources(0, 1, mSRV.GetAddressOf());
 	mDeviceContext->PSSetSamplers(0, 1, mSampler.GetAddressOf());
-	mDeviceContext->DrawIndexed((UINT)mIndexBlob->GetBufferSize() / sizeof(uint16_t), 0, 0);
+	mDeviceContext->DrawIndexed((UINT)mIndexBlob->GetBufferSize() / sizeof(IndexSize), 0, 0);
 }
 
 void Sample::CreateVBIB()
 {
-	array<Vertex, 24> triangle = {
-		//Front
-		Vertex(XMFLOAT3(-75.0f,	-75.0f, -75.0f), XMFLOAT4(Colors::Cyan), XMFLOAT2(0.f, 1.f)),
-		Vertex(XMFLOAT3(-75.0f, 75.0f,	-75.0f), XMFLOAT4(Colors::PaleVioletRed), XMFLOAT2(0.f, 0.f)),
-		Vertex(XMFLOAT3(75.0f,	75.0f,	-75.0f), XMFLOAT4(Colors::SandyBrown), XMFLOAT2(1.f, 0.f)),
-		Vertex(XMFLOAT3(75.0f, -75.0f,	-75.0f), XMFLOAT4(Colors::OliveDrab), XMFLOAT2(1.f, 1.f)),
-		//Up
-		Vertex(XMFLOAT3(-75.0f, 75.0f, -75.0f), XMFLOAT4(Colors::PaleVioletRed), XMFLOAT2(0.f, 1.f)),
-		Vertex(XMFLOAT3(-75.0f, 75.0f,	75.0f), XMFLOAT4(Colors::MediumSpringGreen), XMFLOAT2(0.f, 0.f)),
-		Vertex(XMFLOAT3(75.0f,	75.0f,	75.0f), XMFLOAT4(Colors::LightCoral), XMFLOAT2(1.f, 0.f)),
-		Vertex(XMFLOAT3(75.0f,	75.0f, -75.0f), XMFLOAT4(Colors::Fuchsia), XMFLOAT2(1.f, 1.f)),
-		//Left
-		Vertex(XMFLOAT3(-75.0f, -75.0f,	75.0f), XMFLOAT4(Colors::RosyBrown), XMFLOAT2(0.f, 1.f)),
-		Vertex(XMFLOAT3(-75.0f, 75.0f,	75.0f), XMFLOAT4(Colors::Silver), XMFLOAT2(0.f, 0.f)),
-		Vertex(XMFLOAT3(-75.0f, 75.0f,	-75.0f), XMFLOAT4(Colors::RosyBrown), XMFLOAT2(1.f, 0.f)),
-		Vertex(XMFLOAT3(-75.0f, -75.0f,	-75.0f), XMFLOAT4(Colors::Silver), XMFLOAT2(1.f, 1.f)),
-		//Right
-		Vertex(XMFLOAT3(75.0f, -75.0f,	-75.0f), XMFLOAT4(Colors::Moccasin), XMFLOAT2(0.f, 1.f)),
-		Vertex(XMFLOAT3(75.0f,	75.0f,	-75.0f), XMFLOAT4(Colors::Honeydew), XMFLOAT2(0.f, 0.f)),
-		Vertex(XMFLOAT3(75.0f,	75.0f,	75.0f), XMFLOAT4(Colors::SlateBlue), XMFLOAT2(1.f, 0.f)),
-		Vertex(XMFLOAT3(75.0f, -75.0f,	75.0f), XMFLOAT4(Colors::LightCoral), XMFLOAT2(1.f, 1.f)),
-		//Back
-		Vertex(XMFLOAT3(-75.0f,	-75.0f,	75.0f), XMFLOAT4(Colors::Gold), XMFLOAT2(0.f, 1.f)),
-		Vertex(XMFLOAT3(75.0f,	-75.0f, 75.0f), XMFLOAT4(Colors::DarkMagenta), XMFLOAT2(0.f, 0.f)),
-		Vertex(XMFLOAT3(75.0f,	75.0f,	75.0f), XMFLOAT4(Colors::Ivory), XMFLOAT2(1.f, 0.f)),
-		Vertex(XMFLOAT3(-75.0f, 75.0f,	75.0f), XMFLOAT4(Colors::Indigo), XMFLOAT2(1.f, 1.f)),
-		//Down
-		Vertex(XMFLOAT3(-75.0f,	-75.0f,	-75.0f), XMFLOAT4(Colors::White), XMFLOAT2(0.f, 1.f)),
-		Vertex(XMFLOAT3(75.0f,	-75.0f,	-75.0f), XMFLOAT4(Colors::RoyalBlue), XMFLOAT2(0.f, 0.f)),
-		Vertex(XMFLOAT3(75.0f,	-75.0f,	75.0f), XMFLOAT4(Colors::YellowGreen), XMFLOAT2(1.f, 0.f)),
-		Vertex(XMFLOAT3(-75.0f,	-75.0f,	75.0f), XMFLOAT4(Colors::WhiteSmoke), XMFLOAT2(1.f, 1.f))
-	};
+	GeometryGenerator g;
 
+	GeometryGenerator::MeshData m = g.CreateCylinder(70.0f, 20.0f, 400.0f, 240, 240);
+
+	size_t sz = m.Vertices.size() * sizeof(Vertex);
+
+	Vertex* vp = (Vertex*)std::malloc(sz);
 	vector<Vertex> v;
-	v.assign(&(triangle.data())[0], &(triangle.data())[triangle.size()]);
 
-	array<uint16_t, 36> indicies = {
-		0, 1, 2 ,
-		0, 2, 3 ,
+	if (nullptr != vp)
+	{
+		memcpy(vp, m.Vertices.data(), sz);
 
-		4, 5, 6 ,
-		4, 6, 7 ,
+		v.assign(&vp[0], &vp[m.Vertices.size()]);
 
-		8, 9, 10 ,
-		8, 10, 11 ,
+		std::free(vp);
+	}
+	vector<IndexSize> i;
+	i.assign(&(m.Indices32.data())[0], &(m.Indices32.data())[m.Indices32.size()]);
 
-		12, 13, 14 ,
-		12, 14, 15 ,
-
-		16, 17, 18 ,
-		16, 18, 19 ,
-
-		20, 21, 22 ,
-		20, 22, 23
-	};
-
-	vector<uint16_t> i;
-	i.assign(&(indicies.data())[0], &(indicies.data())[indicies.size()]);
-
-	//for (int p = 0; p < 5; ++p)
+	//for (int p = 0; p < 2; ++p)
 	//{
 	//	SubDivideGeometry(v, i);
 	//}
 
 	const uint32_t vbByteSize = static_cast<uint32_t>(v.size() * sizeof(Vertex));
-	const uint32_t ibByteSize = static_cast<uint32_t>(i.size() * sizeof(uint16_t));
+	const uint32_t ibByteSize = static_cast<uint32_t>(i.size() * sizeof(IndexSize));
 
 	D3DCreateBlob(vbByteSize, mVertexBlob.GetAddressOf());
 	memcpy(mVertexBlob->GetBufferPointer(), v.data(), vbByteSize);
@@ -271,7 +231,6 @@ void Sample::CreateVBIB()
 	indexbufferDesc.CPUAccessFlags = 0;
 
 	ThrowDxFail(md3dDevice->CreateBuffer(&indexbufferDesc, &indexsourceData, mIndexBuffer.GetAddressOf()));
-
 }
 
 void Sample::CreateVSPSIL()
@@ -406,16 +365,16 @@ void Sample::CameraUpdate(float DeltaTimes)
 	//	mTheta = MathHelper::Clamp(mTheta, 0.1f, DirectX::XM_PI - 0.1f);
 	//}
 
-	//if (KEYSTATE(DIK_DOWNARROW, Keystate::KEY_HOLD))
-	//{
-	//	mRadius += DeltaTimes * speed;
-	//	mRadius = MathHelper::Clamp(mRadius, 100.f, 600.f);
-	//}
-	//if (KEYSTATE(DIK_UPARROW, Keystate::KEY_HOLD))
-	//{
-	//	mRadius -= DeltaTimes * speed;
-	//	mRadius = MathHelper::Clamp(mRadius, 100.f, 600.f);
-	//}
+	if (KEYSTATE(DIK_HOME, Keystate::KEY_HOLD))
+	{
+		mRadius += DeltaTimes * speed;
+		mRadius = MathHelper::Clamp(mRadius, 100.f, 1200.f);
+	}
+	if (KEYSTATE(DIK_END, Keystate::KEY_HOLD))
+	{
+		mRadius -= DeltaTimes * speed;
+		mRadius = MathHelper::Clamp(mRadius, 100.f, 1200.f);
+	}
 
 	float z = mRadius * sinf(mTheta) * cosf(mPhi);
 	float y = mRadius * cosf(mTheta);

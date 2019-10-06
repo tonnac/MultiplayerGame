@@ -49,22 +49,20 @@ private:
 private:
 	Microsoft::WRL::ComPtr<ID3DBlob> mVertexBlob = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> mIndexBlob = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11VertexShader> mVertexShader = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11PixelShader> mPixelShader = nullptr;
 
-	Microsoft::WRL::ComPtr<ID3D11InputLayout> mInputlayout = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> mIndexBuffer = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> mVertexBuffer = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> mConstantBuffer = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> mObjConstant = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mSRV = nullptr;
 
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> mInputlayout = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11VertexShader> mVertexShader = nullptr;
+	Microsoft::WRL::ComPtr<ID3D11PixelShader> mPixelShader = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRasterizer = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> mWireframe = nullptr;
-
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mSRV = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> mSampler = nullptr;
-
 	ID3D11RasterizerState* mRaster = nullptr;
 
 	CB mConstantData;
@@ -158,19 +156,24 @@ void Sample::Tick(float DeltaTimes)
 void Sample::GameDraw()
 {
 	Super::GameDraw();
-	unsigned int stride = sizeof(Vertex);
-	unsigned int offset = 0;
-	mDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	mDeviceContext->IASetInputLayout(mInputlayout.Get());
-	mDeviceContext->IASetVertexBuffers(0, 1, mVertexBuffer.GetAddressOf(), &stride, &offset);
+
 	mDeviceContext->VSSetConstantBuffers(0, 1, mConstantBuffer.GetAddressOf());
-	mDeviceContext->VSSetConstantBuffers(1, 1, mObjConstant.GetAddressOf());
-	mDeviceContext->IASetIndexBuffer(mIndexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0);
+
+
+	mDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	mDeviceContext->PSSetSamplers(0, 1, mSampler.GetAddressOf());
+	mDeviceContext->RSSetState(mRaster);
+	mDeviceContext->IASetInputLayout(mInputlayout.Get());
 	mDeviceContext->VSSetShader(mVertexShader.Get(), nullptr, 0);
 	mDeviceContext->PSSetShader(mPixelShader.Get(), nullptr, 0);
-	mDeviceContext->RSSetState(mRaster);
+
+	unsigned int stride = sizeof(Vertex);
+	unsigned int offset = 0;
+	mDeviceContext->VSSetConstantBuffers(1, 1, mObjConstant.GetAddressOf());
+	mDeviceContext->IASetVertexBuffers(0, 1, mVertexBuffer.GetAddressOf(), &stride, &offset);
+	mDeviceContext->IASetIndexBuffer(mIndexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0);
 	mDeviceContext->PSSetShaderResources(0, 1, mSRV.GetAddressOf());
-	mDeviceContext->PSSetSamplers(0, 1, mSampler.GetAddressOf());
+
 	mDeviceContext->DrawIndexed((UINT)mIndexBlob->GetBufferSize() / sizeof(uint16_t), 0, 0);
 }
 
@@ -235,10 +238,10 @@ void Sample::CreateVBIB()
 	vector<uint16_t> i;
 	i.assign(&(indicies.data())[0], &(indicies.data())[indicies.size()]);
 
-	//for (int p = 0; p < 5; ++p)
-	//{
-	//	SubDivideGeometry(v, i);
-	//}
+	for (int p = 0; p < 5; ++p)
+	{
+		SubDivideGeometry(v, i);
+	}
 
 	const uint32_t vbByteSize = static_cast<uint32_t>(v.size() * sizeof(Vertex));
 	const uint32_t ibByteSize = static_cast<uint32_t>(i.size() * sizeof(uint16_t));
