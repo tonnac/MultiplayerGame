@@ -86,6 +86,11 @@ private:
 	XMFLOAT3 mRightVector = XMFLOAT3(1.f, 0.f, 0.f);
 	XMFLOAT3 mUpVector = XMFLOAT3(0.f, 1.f, 0.f);
 
+private:
+	int32_t indexCount = 0;
+	int32_t baseVertexLocation;
+	int32_t baseIndexLocation;
+
 	SINGLETON(Sample)
 };
 
@@ -177,7 +182,7 @@ void Sample::CreateVBIB()
 {
 	GeometryGenerator g;
 
-	GeometryGenerator::MeshData m = g.CreateCylinder(40.0f, 20.0f, 200.0f, 240, 240);
+	GeometryGenerator::MeshData m = g.CreateCapsule(150.0f, 250.0f);
 
 	size_t sz = m.Vertices.size() * sizeof(Vertex);
 

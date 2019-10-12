@@ -49,4 +49,16 @@ public:
 	{
 		return min + (max - min) * t;
 	}
+
+	inline static bool CompareFloat(float a, float b)
+	{
+		if (abs(a - b) <= Epsilon)
+		{
+			return true;
+		}
+		return false;
+	}
+
+private:
+	static constexpr float Epsilon = 0.01f;
 };

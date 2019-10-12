@@ -339,9 +339,177 @@ MeshData GeometryGenerator::CreateQuad(float x, float y, float w, float h, float
 	return MeshData();
 }
 
-MeshData GeometryGenerator::CreateCapsule(float radius, float height, uint32 sliceCount)
+MeshData GeometryGenerator::CreateCapsule(float radius, float halfHeight, uint32 sliceCount)
 {
-	return MeshData();
+	constexpr int sphereStackCount = 3;
+	constexpr int cylinderStackCount = 1;
+
+	int32_t baseVertexLocation = 0;
+	float height = 0.f;
+
+	MeshData meshData;
+
+	if (radius >= halfHeight)
+	{
+		radius = halfHeight;
+	}
+
+	float thetaStep = XM_2PI / sliceCount;
+	float phiStep = XM_PIDIV2 / sphereStackCount;
+
+	// (x - radius) / (height - radius);
+
+#pragma region UpperSphere
+	Vertex vS(XMFLOAT3(0.0f, halfHeight, 0.0f), XMFLOAT4(1.f, 1.f, 1.f, 1.f), XMFLOAT2(0.f, 0.f));
+
+	meshData.Vertices.push_back(vS);
+
+	for (int i = 1; i <= sphereStackCount; ++i)
+	{
+		float phi = phiStep * i;
+		
+		for (int k = 0; k <= sliceCount; ++k)
+		{
+			float theta = thetaStep * k;
+
+			float x = radius * sinf(phi) * cosf(theta);
+			float y = radius * (cosf(phi) - 1) + halfHeight;//radius * cosf(phi) + halfHeight - radius;
+			float z = radius * sinf(phi) * sinf(theta);
+
+			Vertex v(XMFLOAT3(x, y, z), XMFLOAT4(1.f, 1.f, 1.f, 1.f), XMFLOAT2(0.f, 0.f));
+			meshData.Vertices.push_back(v);
+		}
+	}
+
+	for (int i = 1; i <= sliceCount; ++i)
+	{
+		meshData.Indices32.push_back(i);
+		meshData.Indices32.push_back(0);
+		meshData.Indices32.push_back(i+1);
+	}
+
+	for (int i = 0; i < sphereStackCount - 1; ++i)
+	{
+		for (int k = 0; k < sliceCount; ++k)
+		{
+			int i0 = (i + 1) * (sliceCount + 1) + k + 1;
+			int i1 = i * (sliceCount + 1) + k + 1;
+			int i2 = (i + 1) * (sliceCount + 1) + k + 2;
+			int i3 = i * (sliceCount + 1) + k + 2;
+
+			meshData.Indices32.push_back(i0);
+			meshData.Indices32.push_back(i1);
+			meshData.Indices32.push_back(i3);
+
+			meshData.Indices32.push_back(i0);
+			meshData.Indices32.push_back(i3);
+			meshData.Indices32.push_back(i2);
+		}
+	}
+#pragma endregion	
+#pragma region Cylinder
+	if (!MathHelper::CompareFloat(radius / halfHeight, 1.f))
+	{
+		height = halfHeight - radius;
+		baseVertexLocation = static_cast<int32_t>(meshData.Vertices.size());
+
+		for (int i = 0; i <= cylinderStackCount; ++i)
+		{
+			float y = - 2 * (height / cylinderStackCount) * (i - cylinderStackCount * 0.5f);
+
+			for (int k = 0; k <= sliceCount; ++k)
+			{
+				float theta = thetaStep * k;
+
+				float x = radius * cosf(theta);
+				float z = radius * sinf(theta);
+
+				Vertex v(XMFLOAT3(x, y, z), XMFLOAT4(1.f, 1.f, 1.f, 1.f), XMFLOAT2(k / static_cast<float>(sliceCount), static_cast<float>(i) / cylinderStackCount));
+
+				meshData.Vertices.push_back(v);
+			}
+		}
+
+		for (int i = 0; i < cylinderStackCount; ++i)
+		{
+			for (int k = 0; k < sliceCount; ++k)
+			{
+				int i0 = baseVertexLocation + (i + 1) * (sliceCount + 1) + k;
+				int i1 = baseVertexLocation + i * (sliceCount + 1) + k;
+				int i2 = baseVertexLocation + (i + 1) * (sliceCount + 1) + k + 1;
+				int i3 = baseVertexLocation + i * (sliceCount + 1) + k + 1;
+
+				meshData.Indices32.push_back(i0);
+				meshData.Indices32.push_back(i1);
+				meshData.Indices32.push_back(i3);
+
+				meshData.Indices32.push_back(i0);
+				meshData.Indices32.push_back(i3);
+				meshData.Indices32.push_back(i2);
+			}
+		}
+	}
+#pragma endregion
+#pragma region LowerSphere
+	height = radius - halfHeight;
+	baseVertexLocation = static_cast<int32_t>(meshData.Vertices.size());
+
+	for (int i = 0; i < sphereStackCount; ++i)
+	{
+		float phi = phiStep * i;
+
+		for (int k = 0; k <= sliceCount; ++k)
+		{
+			float theta = thetaStep * k;
+
+			float x = radius * sinf(phi + XM_PIDIV2 * 3.0f) * cosf(theta);
+			float y = height - radius * cosf(phi + XM_PIDIV2 * 3.0f);//radius * cosf(phi) + halfHeight - radius;
+			float z = radius * sinf(phi + XM_PIDIV2 * 3.0f) * sinf(theta);
+
+			Vertex v(XMFLOAT3(x, y, z), XMFLOAT4(1.f, 1.f, 1.f, 1.f), XMFLOAT2(0.f, 0.f));
+			meshData.Vertices.push_back(v);
+		}
+	}
+
+	for (int i = 0; i < sphereStackCount - 1; ++i)
+	{
+		for (int k = 0; k < sliceCount; ++k)
+		{
+			int i0 = baseVertexLocation + (i + 1) * (sliceCount + 1) + k;
+			int i1 = baseVertexLocation + i * (sliceCount + 1) + k;
+			int i2 = baseVertexLocation + (i + 1) * (sliceCount + 1) + k + 1;
+			int i3 = baseVertexLocation + i * (sliceCount + 1) + k + 1;
+
+			meshData.Indices32.push_back(i0);
+			meshData.Indices32.push_back(i1);
+			meshData.Indices32.push_back(i3);
+
+			meshData.Indices32.push_back(i0);
+			meshData.Indices32.push_back(i3);
+			meshData.Indices32.push_back(i2);
+		}
+	}
+
+	baseVertexLocation = static_cast<int32_t>(meshData.Vertices.size() - (sliceCount + 1));
+
+	Vertex vE = Vertex(XMFLOAT3(0.f, -halfHeight, 0.f), XMFLOAT4(1.f, 1.f, 1.f, 1.f), XMFLOAT2(0.f, 0.f));
+	meshData.Vertices.push_back(vE);
+
+	int bottomIndex = static_cast<int>(meshData.Vertices.size() - 1);
+	
+	for (int i = 0; i < sliceCount; ++i)
+	{
+		int i0 = baseVertexLocation + i;
+		int i1 = baseVertexLocation + i + 1;
+
+		meshData.Indices32.push_back(i1);
+		meshData.Indices32.push_back(bottomIndex);
+		meshData.Indices32.push_back(i0);
+	}
+
+#pragma endregion
+
+	return meshData;
 }
 
 void GeometryGenerator::Subdivide(MeshData& meshData)

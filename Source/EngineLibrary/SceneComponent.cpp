@@ -6,6 +6,10 @@ SceneComponent::SceneComponent()
 	{
 		mFormat = DXGI_FORMAT_R32_UINT;
 	}
+	else
+	{
+		mFormat = DXGI_FORMAT_R16_UINT;
+	}
 }
 
 XMFLOAT3 SceneComponent::GetComponentLocation() const

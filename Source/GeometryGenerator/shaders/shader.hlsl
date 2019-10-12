@@ -41,5 +41,5 @@ float4 PS(VertexOut vOut) : SV_Target
 {
 	float4 retColor = gTextureMap.Sample(gSamPointWrap, vOut.t);
 
-	return retColor;
+	return vOut.c;
 }
